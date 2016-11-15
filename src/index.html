@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>Purupdater</title>
-  <base href="/">
+  <script>
+    document.write('<base href="' + document.location + '" />');
+    var fs = require('fs');
+  </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
