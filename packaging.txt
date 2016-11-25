@@ -1,0 +1,2 @@
+celectron-packager <dir> <app_name> --platform=win32 --arch=all --version=<electron_version> --icon=<path_to_icon> --out=Staging --version-string.CompanyName=<my_company_name>--version-string.ProductName=<my_product_name> --version-string.ProductVersion=<product_version>
+C:\Projects\GitHub\purupdater\public>electron-packager . PurUpdater --platform=win32 --arch=all --icon=favicon.ico --overwrite

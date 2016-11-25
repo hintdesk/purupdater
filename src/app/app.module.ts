@@ -5,6 +5,12 @@ import { HttpModule } from '@angular/http';
 import './rxjs-extensions';
 import { AppComponent } from './app.component';
 
+import { AppContext} from './infrastructure/appContext';
+import { AppUtil} from './infrastructure/utils/appUtil';
+import { FileUtil} from './infrastructure/utils/fileUtil';
+import { PathUtil} from './infrastructure/utils/pathUtil';
+
+
 @NgModule({
   declarations: [
     AppComponent
@@ -14,7 +20,12 @@ import { AppComponent } from './app.component';
     FormsModule,
     HttpModule
   ],
-  providers: [],
+  providers: [
+    AppContext,
+    AppUtil,
+    FileUtil,
+    PathUtil
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

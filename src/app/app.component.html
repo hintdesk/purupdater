@@ -1,37 +1,61 @@
-<h1>
-  {{title}}
-</h1>
-
 <div class="container-fluid">
 
-  <div class="row top-buffer">
+  <div class="row top-buffer-50">
     <label class="col-md-2" for="">Build</label>
     <div class="col-md-8">
       <select class="form-control" [(ngModel)]="selectedBuild" (ngModelChange)="onSelectedBuildChanged($event)" name="">
             	<option *ngFor="let build of builds" [ngValue]="build">{{build.name}}</option>
 			</select>
-    </div>    
-  </div>
-
-    <div class="row top-buffer">
-    <label class="col-md-2" for="">Pur directory</label>
-    <div class="col-md-8">
-      <div>{{purDirectory}}</div>
-    </div>    
+    </div>
   </div>
 
   <div class="row top-buffer">
-    <label class="col-md-2" for="">Build</label>
+    <label class="col-md-2" for="">Pur directory</label>
     <div class="col-md-8">
-       <input type="file" class="form-control" (change)="onSelectedFileChange($event)">
-    </div>    
+      <input class="form-control" placeholder="Pur directory will be extracted from selected build" disabled="" type="text" [ngModel]="purDirectory">
+    </div>
   </div>
 
-  <div class="row top-buffer">    
+  <div class="row top-buffer">
+    <label class="col-md-2" for="">PUR file</label>
+    <div class="col-md-8">
+      <div class="input-group">
+        <input class="form-control" placeholder="Select new PUR zip file over Browse button, e.g. O:\Kunden\Zurich\Software\PuR" disabled="" type="text" [ngModel]="selectedPurFile">
+        <span class="input-group-btn">
+        <label class="btn btn-primary btn-file">Browse <input type="file" style="display: none;" (change)="onSelectedFileChange($event)"></label>
+      </span>
+      </div>
+    </div>
+    <!--<div class="col-md-2">
+      
+    </div>-->
+  </div>
+
+  <div class="row top-buffer-50">
     <div class="col-md-12">
       <div class="text-center">
-        <button (click)="update()">Update</button>
-      </div>      
-    </div>    
+        <button class="btn btn-primary" (click)="update()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isExtracting && !error" class="row top-buffer">
+    <div class="col-md-offset-2 col-md-8">
+      <div class="progress">
+        <div class="progress-bar" [style.width.%]="percentage">{{percentage}}%</div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="row top-buffer-50">
+    <div class="col-md-offset-2 col-md-8">
+      <div class="alert alert-dismissible alert-danger text-center">{{error}}</div>
+    </div>
+  </div>
+
+  <div *ngIf="isDone" class="row top-buffer-50">
+    <div class="col-md-offset-2 col-md-8">
+      <div class="alert alert-dismissible alert-success text-center">Update done.</div>
+    </div>
   </div>
 </div>

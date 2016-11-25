@@ -4,14 +4,114 @@
   <meta charset="utf-8">
   <title>Purupdater</title>
   <script>
-    document.write('<base href="' + document.location + '" />');
-    var fs = require('fs');
+    document.write('<base href="' + document.location + '" />');    
+    const electron = require('electron');
+    const fs = require('fs');
+    const os = require('os');
+    const path = require('path');
+    const del = require('del');
+    const decompress = require('decompress');    
+    const decompresszip = require('decompress-zip');  
+    window.$ = window.jQuery = require('jQuery');
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    .loadingDiv {
+      top: 50%;
+      left: 50%;
+      position: absolute;
+      transform: translateX(-50%) translateY(-50%);
+    }
+    
+    .loadingText {
+      color: #eb6864;
+      font-family: "Courier New", Courier, monospace;
+      text-align: center;
+    }
+    
+    .sk-wave {
+      margin: 40px auto;
+      width: 60px;
+      height: 60px;
+      text-align: center;
+      font-size: 10px;
+    }
+    
+    .sk-wave .sk-rect {
+      background-color: #eb6864;
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+      -webkit-animation: sk-waveStretchDelay 1.2s infinite ease-in-out;
+      animation: sk-waveStretchDelay 1.2s infinite ease-in-out;
+    }
+    
+    .sk-wave .sk-rect1 {
+      -webkit-animation-delay: -1.2s;
+      animation-delay: -1.2s;
+    }
+    
+    .sk-wave .sk-rect2 {
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+    
+    .sk-wave .sk-rect3 {
+      -webkit-animation-delay: -1s;
+      animation-delay: -1s;
+    }
+    
+    .sk-wave .sk-rect4 {
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+    
+    .sk-wave .sk-rect5 {
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+    
+    @-webkit-keyframes sk-waveStretchDelay {
+      0%,
+      40%,
+      100% {
+        -webkit-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+      }
+      20% {
+        -webkit-transform: scaleY(1);
+        transform: scaleY(1);
+      }
+    }
+    
+    @keyframes sk-waveStretchDelay {
+      0%,
+      40%,
+      100% {
+        -webkit-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+      }
+      20% {
+        -webkit-transform: scaleY(1);
+        transform: scaleY(1);
+      }
+    }
+  </style>
 </head>
 <body>
-  <app-root>Loading...</app-root>
+  <app-root>
+    <div class="loadingDiv">
+      <h2 class="loadingText">PurUpdater</h2>
+      <div class="sk-wave">
+        <div class="sk-rect sk-rect1"></div>
+        <div class="sk-rect sk-rect2"></div>
+        <div class="sk-rect sk-rect3"></div>
+        <div class="sk-rect sk-rect4"></div>
+        <div class="sk-rect sk-rect5"></div>
+      </div>
+    </div>
+  </app-root>
 </body>
 </html>
