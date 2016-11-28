@@ -1,2 +1,3 @@
 celectron-packager <dir> <app_name> --platform=win32 --arch=all --version=<electron_version> --icon=<path_to_icon> --out=Staging --version-string.CompanyName=<my_company_name>--version-string.ProductName=<my_product_name> --version-string.ProductVersion=<product_version>
-C:\Projects\GitHub\purupdater\public>electron-packager . PurUpdater --platform=win32 --arch=all --icon=favicon.ico --overwrite
+C:\Projects\GitHub\purupdater\public>
+electron-packager . PurUpdater --platform=win32 --arch=ia32 --icon=favicon.ico --overwrite --app-version="1.0.0" --win32metadata.CompanyName="Impeo Software GmbH" --win32metadata.ProductName="PurUpdater" --win32metadata.OriginalFilename="PurUpdater.exe" --win32metadata.FileDescription="PurUpdater" --app-copyright="Copyright (C) 2016 Impeo Software GmbH. All rights reserved."

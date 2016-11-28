@@ -7,5 +7,4 @@ declare var path: any;
 declare var fs: any;
 declare var os: any;
 declare var del: any;
-declare var decompress: any;
 declare var decompresszip: any;
