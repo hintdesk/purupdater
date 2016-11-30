@@ -14,6 +14,7 @@ export class AppComponent implements OnInit {
     backUpFiles = ["bpi.ini", "ZurichPUR.exe", "ZurichPUR.exe.config"];
     builds: BuildDefinition[] = [];
     error: string = "";
+    currentStatus: string;
     isDone: boolean = false;
     isExtracting: boolean = false;
     percentage: number = 0;
@@ -61,7 +62,7 @@ export class AppComponent implements OnInit {
                     if (files.length == 1)
                         result = path.join(foundPath, files[0]);
                     else
-                        this.error = "getPurDirectory: Multiple PUR folders was found";
+                        this.error = "getPurDirectory: Multiple PUR folders were found";
                     break;
                 }
             }
@@ -107,9 +108,10 @@ export class AppComponent implements OnInit {
         this.percentage = 0;
 
         // var testDestPath = "\\\\build03.office.spsnetz.de\\ReleaseBuilds\\Rechenkerne\\Zurich\\_ForBuild\\Dev Release 2\\Temp";
-        // var testDestPath = "C:\\Temp\\PurDE";
+        // // var testDestPath = "C:\\Temp\\PurDE";
         // this.purDirectory = testDestPath;
-        // var testSourcePath = "C:\\Temp\\rtimepur_20161110_IQ17_TST6.zip";
+        // // var testSourcePath = "C:\\Temp\\rtimepur_20161124_IQ17_TST9.zip";
+        // var testSourcePath = "O:\\Kunden\\Zurich\\Software\\PuR\\rtimepur_20161124_IQ17_TST9.zip";
         // this.selectedPurFile = testSourcePath;
 
         if (!fs.existsSync(this.purDirectory)) {
@@ -132,22 +134,40 @@ export class AppComponent implements OnInit {
         if (this.error)
             return;
 
-        del.sync([this.purDirectory + "/*"], { force: true });
+        try {
+            fs.removeSync(this.purDirectory);
+        }
+        catch (ex) {
+            console.log(ex);
+        }
+
+        // del.sync([this.purDirectory + "/*"], { force: true });
+
+        //    try {
+        //        this.appContext.Util.File.removeFolder(this.appContext.Util.File, this.purDirectory);
+        //    }
+        //    catch (ex){
+        //        console.log(ex);
+        //    }
+
+
+
+        if (!fs.existsSync(this.purDirectory))
+            fs.mkdirSync(this.purDirectory);
 
 
         var unzipper = new decompresszip(this.selectedPurFile);
-        unzipper.on('error', function(err) {
+        unzipper.on('error', function (err) {
+            console.log(err);
             this.ngZone.run(() => {
                 this.isExtracting = false;
                 this.error = "decompresszip:error: " + err;
-                console.log(err);
             });
         });
 
         unzipper.on('extract', (log) => {
+            console.log("Update done...");
             this.ngZone.run(() => {
-
-                console.log("Update done...");
                 this.isDone = true;
                 this.isExtracting = false;
                 this.appContext.Util.File.copyMultiples(this.backUpFiles, this.tempFolder, this.purDirectory, (err) => {
@@ -164,6 +184,8 @@ export class AppComponent implements OnInit {
         unzipper.on('progress', (fileIndex, fileCount) => {
             this.ngZone.run(() => {
                 this.percentage = Math.floor(((fileIndex * 100) / fileCount));
+                this.currentStatus = fileIndex + "/" + fileCount;
+                // console.log(fileIndex + "/" + fileCount);
             });
         });
 

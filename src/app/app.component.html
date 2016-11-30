@@ -39,11 +39,13 @@
     </div>
   </div>
 
-  <div *ngIf="isExtracting && !error" class="row top-buffer">
+  <div *ngIf="isExtracting && !error" class="row top-buffer-50">
     <div class="col-md-offset-2 col-md-8">
+      <label class="text-center">Please wait... Current file index {{currentStatus}}</label>
       <div class="progress">
         <div class="progress-bar" [style.width.%]="percentage">{{percentage}}%</div>
       </div>
+      <div class="text-center"></div>
     </div>
   </div>
 

@@ -6,10 +6,9 @@
   <script>
     document.write('<base href="' + document.location + '" />');    
     const electron = require('electron');
-    const fs = require('fs');
+    const fs = require('fs-extra');
     const os = require('os');
-    const path = require('path');
-    const del = require('del');    
+    const path = require('path');    
     const decompresszip = require('decompress-zip');  
     window.$ = window.jQuery = require('jQuery');
   </script>
