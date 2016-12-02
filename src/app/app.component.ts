@@ -108,22 +108,25 @@ export class AppComponent implements OnInit {
         this.percentage = 0;
 
         // var testDestPath = "\\\\build03.office.spsnetz.de\\ReleaseBuilds\\Rechenkerne\\Zurich\\_ForBuild\\Dev Release 2\\Temp";
-        // // var testDestPath = "C:\\Temp\\PurDE";
+        // // // var testDestPath = "C:\\Temp\\PurDE";
         // this.purDirectory = testDestPath;
-        // // var testSourcePath = "C:\\Temp\\rtimepur_20161124_IQ17_TST9.zip";
+        // // // var testSourcePath = "C:\\Temp\\rtimepur_20161124_IQ17_TST9.zip";
         // var testSourcePath = "O:\\Kunden\\Zurich\\Software\\PuR\\rtimepur_20161124_IQ17_TST9.zip";
         // this.selectedPurFile = testSourcePath;
 
+        this.currentStatus = "Check if PUR directory exists";
         if (!fs.existsSync(this.purDirectory)) {
             this.error = "update:PUR directory not found: " + this.purDirectory;
             return;
         }
 
+        this.currentStatus = "Check if new PUR zip file exists";
         if (!fs.existsSync(this.selectedPurFile)) {
             this.error = "update:PUR file not found: " + this.selectedPurFile;
             return;
         }
 
+        this.currentStatus = "Backup " + this.backUpFiles.join(",");
         this.appContext.Util.File.copyMultiples(this.backUpFiles, this.purDirectory, this.tempFolder, (err) => {
             if (err) {
                 this.error = "copyBackupFilesToTempFolder: " + err;
@@ -134,6 +137,7 @@ export class AppComponent implements OnInit {
         if (this.error)
             return;
 
+        this.currentStatus = "Delete old PUR files";
         try {
             fs.removeSync(this.purDirectory);
         }
@@ -170,6 +174,7 @@ export class AppComponent implements OnInit {
             this.ngZone.run(() => {
                 this.isDone = true;
                 this.isExtracting = false;
+                this.currentStatus = undefined;
                 this.appContext.Util.File.copyMultiples(this.backUpFiles, this.tempFolder, this.purDirectory, (err) => {
                     if (err) {
                         this.error = "copyBackupFilesToPurFolder: " + err;
@@ -184,7 +189,7 @@ export class AppComponent implements OnInit {
         unzipper.on('progress', (fileIndex, fileCount) => {
             this.ngZone.run(() => {
                 this.percentage = Math.floor(((fileIndex * 100) / fileCount));
-                this.currentStatus = fileIndex + "/" + fileCount;
+                this.currentStatus = "Current file index " + fileIndex + "/" + fileCount;
                 // console.log(fileIndex + "/" + fileCount);
             });
         });
