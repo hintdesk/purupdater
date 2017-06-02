@@ -16,6 +16,13 @@
     </div>
   </div>
 
+  <div *ngIf="lastUpdateHistory" class="row top-buffer">
+    <label class="col-md-2" for="">Last update</label>
+    <div class="col-md-8">
+      <input class="form-control" disabled="" type="text" value="On {{lastUpdateHistory.Date | date:'medium'}} by {{lastUpdateHistory.User}} with {{lastUpdateHistory.FileName}}">     
+    </div>
+  </div>
+
   <div class="row top-buffer">
     <label class="col-md-2" for="">PUR file</label>
     <div class="col-md-8">

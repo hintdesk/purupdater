@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class FileUtil {
-    copy(source: string, dest: string, callback) {
-        var isCallbackCalled = false;
+    copy(source: string, dest: string) {
 
         var readStream = fs.createReadStream(source);
         readStream.on("error", function (err) {
@@ -18,35 +17,30 @@ export class FileUtil {
         readStream.pipe(writeStream);
 
         function done(err) {
-            if (!isCallbackCalled) {
-                callback(err);
-                isCallbackCalled = true;
-            }
+            if (err)
+                throw err;
         }
     }
 
-    copyMultiples(files: string[], sourceDir:string, destDir: string, callback) {
-        if (!fs.existsSync(sourceDir)){
-            callback(`FileUtil:copyMultiples: Source ${sourceDir} not found`);
-            return;
-        }
 
-        if (!fs.existsSync(destDir)){
-            callback(`FileUtil:copyMultiples: Destination ${destDir} not found`);
-            return;
-        }
+    copyMultiples(files: string[], sourceDir: string, destDir: string) {
+        if (!fs.existsSync(sourceDir))
+            throw new Error(`FileUtil:copyMultiples: Source ${sourceDir} not found`);
+
+        if (!fs.existsSync(destDir))
+            throw new Error(`FileUtil:copyMultiples: Destination ${destDir} not found`);
+
 
         for (let file of files) {
-            var sourceFile = path.join(sourceDir,file);
+            var sourceFile = path.join(sourceDir, file);
             if (!fs.existsSync(sourceFile)) {
-                callback(`FileUtil:copyMultiples: File ${sourceFile} not found`);
-                continue;                
+                throw new Error(`FileUtil:copyMultiples: File ${sourceFile} not found`);
             }
             else {
-                var destFile = path.join(destDir,file)
-                this.copy(sourceFile,destFile,callback);
+                var destFile = path.join(destDir, file)
+                this.copy(sourceFile, destFile);
             }
-        }
+        }       
     }
 
     removeFolder(fileUtil: FileUtil, folderPath: string) {

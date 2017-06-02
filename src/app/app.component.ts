@@ -1,10 +1,13 @@
+
 import { AppContext } from './infrastructure/appContext';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
 import { Build, BuildDefinition } from './models/buildDefinition';
 import 'rxjs/add/operator/toPromise';
+import { ConstantValues } from "./models/constantValues";
+import { UpdateHistory } from "./entities/updateHistory";
 var app = <Electron.App>electron.remote.app;
-
+// https://angular.io/docs/ts/latest/api/
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -17,11 +20,13 @@ export class AppComponent implements OnInit {
     currentStatus: string;
     isDone: boolean = false;
     isExtracting: boolean = false;
+    lastUpdateHistory: UpdateHistory;
     percentage: number = 0;
     purDirectory: string;
     selectedBuild: BuildDefinition;
     selectedPurFile: string;
-    tempFolder = path.join(os.tmpdir(), "PurUpdater");
+    tempFolder: string;
+
 
 
     constructor(
@@ -30,69 +35,35 @@ export class AppComponent implements OnInit {
         private ngZone: NgZone) {
 
     }
-    createTempFolder() {
-        if (!fs.existsSync(this.tempFolder))
-            fs.mkdirSync(this.tempFolder);
-    }
-
-    getBuildDefinitions() {
-        this.http.get("https://tfs.office.spsnetz.de/tfs/DefaultCollection/Zurich-Weblife20/_apis/build/definitions")
-            .toPromise()
-            .then(reponse => {
-                var data = reponse.json();
-                if (data) {
-                    this.builds = data.value as BuildDefinition[];
-                }
-
-            })
-            .catch(err => {
-                this.error = "getBuildDefinitions:" + err;
-            })
-    }
-
-    getPurDirectory(build: Build): string {
-        var result: string;
-        if (build.enabled && build.inputs.msbuildArgs) {
-            var args = build.inputs.msbuildArgs.split("/");
-            for (let arg of args) {
-                var argKeyValue = arg.split("=");
-                if (argKeyValue.length === 2 && argKeyValue[0] === "p:RKRootFolder") {
-                    var foundPath = argKeyValue[1].replace(new RegExp("\\\"", "g"), "");
-                    var files = fs.readdirSync(foundPath);
-                    if (files.length == 1)
-                        result = path.join(foundPath, files[0]);
-                    else
-                        this.error = "getPurDirectory: Multiple PUR folders were found";
-                    break;
-                }
-            }
-        }
-        return result;
-    }
 
     ngOnInit() {
-        this.createTempFolder();
-        this.getBuildDefinitions();
+        this.tempFolder = this.appContext.Provider.Enviroment.ensureTempFolder();
+        this.appContext.Repository.Build.getAll()
+            .subscribe(
+            res => this.builds = res,
+            err => this.error = "getBuildDefinitions:" + err
+            );
     }
 
 
     onSelectedBuildChanged($event) {
-        this.http.get(this.selectedBuild.url)
-            .toPromise()
-            .then(reponse => {
-                var data = reponse.json();
-                if (data) {
-                    var build = data.build as Build[];
-                    for (let item of build) {
-                        this.purDirectory = this.getPurDirectory(item)
-                        if (this.purDirectory)
-                            break;
-                    }
-                }
-            })
-            .catch(err => {
+        this.error = undefined;
+        this.appContext.Repository.Build.getPurDirectory(this.selectedBuild)
+            .subscribe(
+            res => {
+                this.purDirectory = res;
+                // var testDestPath = "C:\\Temp\\PurDE";
+                // this.purDirectory = testDestPath;
+                var db = this.appContext.Provider.Enviroment.ensureDatabase(this.purDirectory);
+                this.appContext.Repository.UpdateConnectionString(db);
+                this.lastUpdateHistory = this.appContext.Repository.UpdateHistory.getLatest();
+
+            },
+            err => {
                 this.error = "onSelectedBuildChanged:" + err;
-            })
+                this.purDirectory = undefined;
+            }
+            )
     }
 
     onSelectedFileChange($event) {
@@ -108,58 +79,21 @@ export class AppComponent implements OnInit {
         this.percentage = 0;
 
         // var testDestPath = "\\\\build03.office.spsnetz.de\\ReleaseBuilds\\Rechenkerne\\Zurich\\_ForBuild\\Dev Release 2\\Temp";
-        // // // var testDestPath = "C:\\Temp\\PurDE";
-        // this.purDirectory = testDestPath;
+
         // // // var testSourcePath = "C:\\Temp\\rtimepur_20161124_IQ17_TST9.zip";
-        // var testSourcePath = "O:\\Kunden\\Zurich\\Software\\PuR\\rtimepur_20161124_IQ17_TST9.zip";
-        // this.selectedPurFile = testSourcePath;
+        var testSourcePath = "O:\\Kunden\\Zurich\\Software\\PuR\\DE-2017_07\\rtimepur_20170601_IIIQ17_TST10.zip";
+        this.selectedPurFile = testSourcePath;
 
-        this.currentStatus = "Check if PUR directory exists";
-        if (!fs.existsSync(this.purDirectory)) {
-            this.error = "update:PUR directory not found: " + this.purDirectory;
-            return;
-        }
-
-        this.currentStatus = "Check if new PUR zip file exists";
-        if (!fs.existsSync(this.selectedPurFile)) {
-            this.error = "update:PUR file not found: " + this.selectedPurFile;
-            return;
-        }
-
-        this.currentStatus = "Backup " + this.backUpFiles.join(",");
-        this.appContext.Util.File.copyMultiples(this.backUpFiles, this.purDirectory, this.tempFolder, (err) => {
-            if (err) {
-                this.error = "copyBackupFilesToTempFolder: " + err;
-                return;
-            }
-        });
-
-        if (this.error)
+        if (!this.validate())
             return;
 
-        this.currentStatus = "Delete old PUR files";
-        try {
-            fs.removeSync(this.purDirectory);
-        }
-        catch (ex) {
-            console.log(ex);
-        }
+        this.unpack();
 
-        // del.sync([this.purDirectory + "/*"], { force: true });
+        
 
-        //    try {
-        //        this.appContext.Util.File.removeFolder(this.appContext.Util.File, this.purDirectory);
-        //    }
-        //    catch (ex){
-        //        console.log(ex);
-        //    }
+    }
 
-
-
-        if (!fs.existsSync(this.purDirectory))
-            fs.mkdirSync(this.purDirectory);
-
-
+    unpack(){
         var unzipper = new decompresszip(this.selectedPurFile);
         unzipper.on('error', function (err) {
             console.log(err);
@@ -172,17 +106,20 @@ export class AppComponent implements OnInit {
         unzipper.on('extract', (log) => {
             console.log("Update done...");
             this.ngZone.run(() => {
-                this.isDone = true;
-                this.isExtracting = false;
-                this.currentStatus = undefined;
-                this.appContext.Util.File.copyMultiples(this.backUpFiles, this.tempFolder, this.purDirectory, (err) => {
-                    if (err) {
-                        this.error = "copyBackupFilesToPurFolder: " + err;
-                        console.log(err);
-                        return;
-                    }
-                });
-
+                try {
+                    this.appContext.Util.File.copyMultiples(this.backUpFiles, this.tempFolder, this.purDirectory);
+                    var updateHistory = new UpdateHistory();
+                    updateHistory.Date = new Date();
+                    updateHistory.FileName = path.basename(this.selectedPurFile);
+                    updateHistory.User = os.userInfo().username;
+                    this.appContext.Repository.UpdateHistory.save(updateHistory);
+                    this.isDone = true;
+                    this.isExtracting = false;
+                    this.currentStatus = undefined;
+                }
+                catch (ex) {
+                    this.error = "copyBackupFilesToPurFolder: " + ex;
+                }
             });
         });
 
@@ -195,7 +132,43 @@ export class AppComponent implements OnInit {
         });
 
         unzipper.extract({ path: this.purDirectory, strip: 1 });
+    }
 
+    validate(): boolean {
+        this.currentStatus = "Check if PUR directory exists";
+        if (!fs.existsSync(this.purDirectory)) {
+            this.error = "update:PUR directory not found: " + this.purDirectory;
+            return false;
+        }
+
+        this.currentStatus = "Check if new PUR zip file exists";
+        if (!fs.existsSync(this.selectedPurFile)) {
+            this.error = "update:PUR file not found: " + this.selectedPurFile;
+            return false;
+        }
+
+        this.currentStatus = "Backup " + this.backUpFiles.join(",");
+        try {
+            this.appContext.Util.File.copyMultiples(this.backUpFiles, this.purDirectory, this.tempFolder);
+        }
+        catch (ex) {
+            this.error = "copyBackupFilesToTempFolder: " + ex;
+            return false;
+        }
+
+        this.currentStatus = "Delete old PUR files";
+        try {
+            fs.removeSync(this.purDirectory);
+        }
+        catch (ex) {
+            console.log(ex);
+        }
+
+        this.currentStatus = "Check PUR directory if not exists";
+        if (!fs.existsSync(this.purDirectory))
+            fs.mkdirSync(this.purDirectory);
+
+        return true;
     }
 
 }
