@@ -1,0 +1,1 @@
+run npm install under public folder to get node_modules installed directly under that folder sothat electron can make the packaging correctly.

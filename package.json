@@ -9,9 +9,10 @@
     "test": "ng test",
     "pree2e": "webdriver-manager update",
     "e2e": "protractor",
-    "ng": "ng build && xcopy /EY dist public",
-    "s": "npm run ng && xcopy /EY electron public && electron public",
-    "deploy": "npm run ng && electron-packager public PurUpdater --platform=win32 --arch=ia32 --icon=public/favicon.ico --overwrite --app-version=\"1.0.1\" --win32metadata.CompanyName=\"Impeo Software GmbH\" --win32metadata.ProductName=\"PurUpdater\" --win32metadata.OriginalFilename=\"PurUpdater.exe\" --win32metadata.FileDescription=\"PurUpdater\" --app-copyright=\"Copyright (C) 2016 Impeo Software GmbH. All rights reserved.\" --asar --out=\"deploy\""
+    "angular": "ng build && xcopy /EY dist public",
+    "angulardeploy": "ng build --target=production && xcopy /EY dist public",
+    "debug": "npm run angular && xcopy /EY \"electron/debug\" public && xcopy /EY electron/all public && electron public",
+    "deploy": "npm run angulardeploy  && xcopy /EY \"electron/release\" public && electron-packager public PurUpdater --platform=win32 --arch=ia32 --icon=public/favicon.ico --overwrite --app-version=\"1.0.1\" --win32metadata.CompanyName=\"Impeo Software GmbH\" --win32metadata.ProductName=\"PurUpdater\" --win32metadata.OriginalFilename=\"PurUpdater.exe\" --win32metadata.FileDescription=\"PurUpdater\" --app-copyright=\"Copyright (C) 2016 Impeo Software GmbH. All rights reserved.\" --asar --out=\"deploy\""
   },
   "private": true,
   "dependencies": {

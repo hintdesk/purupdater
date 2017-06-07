@@ -81,8 +81,8 @@ export class AppComponent implements OnInit {
         // var testDestPath = "\\\\build03.office.spsnetz.de\\ReleaseBuilds\\Rechenkerne\\Zurich\\_ForBuild\\Dev Release 2\\Temp";
 
         // // // var testSourcePath = "C:\\Temp\\rtimepur_20161124_IQ17_TST9.zip";
-        var testSourcePath = "O:\\Kunden\\Zurich\\Software\\PuR\\DE-2017_07\\rtimepur_20170601_IIIQ17_TST10.zip";
-        this.selectedPurFile = testSourcePath;
+        // var testSourcePath = "O:\\Kunden\\Zurich\\Software\\PuR\\DE-2017_07\\rtimepur_20170601_IIIQ17_TST10.zip";
+        // this.selectedPurFile = testSourcePath;
 
         if (!this.validate())
             return;
@@ -113,6 +113,7 @@ export class AppComponent implements OnInit {
                     updateHistory.FileName = path.basename(this.selectedPurFile);
                     updateHistory.User = os.userInfo().username;
                     this.appContext.Repository.UpdateHistory.save(updateHistory);
+                    this.lastUpdateHistory = updateHistory;
                     this.isDone = true;
                     this.isExtracting = false;
                     this.currentStatus = undefined;

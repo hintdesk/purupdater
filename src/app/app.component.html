@@ -46,7 +46,7 @@
     </div>
   </div>
 
-  <div class="row top-buffer-50">
+  <div class="row top-buffer-30">
     <div class="col-md-offset-2 col-md-8">
       <label *ngIf="currentStatus" class="text-center">Please wait...{{currentStatus}}</label>
       <div *ngIf="isExtracting && !error"  class="progress">
@@ -56,13 +56,13 @@
     </div>
   </div>
 
-  <div *ngIf="error" class="row top-buffer-50">
+  <div *ngIf="error" class="row top-buffer-30">
     <div class="col-md-offset-2 col-md-8">
       <div class="alert alert-dismissible alert-danger text-center">{{error}}</div>
     </div>
   </div>
 
-  <div *ngIf="isDone" class="row top-buffer-50">
+  <div *ngIf="isDone" class="row top-buffer-30">
     <div class="col-md-offset-2 col-md-8">
       <div class="alert alert-dismissible alert-success text-center">Update done.</div>
     </div>
