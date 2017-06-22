@@ -6,7 +6,7 @@ import { Build, BuildDefinition } from './models/buildDefinition';
 import 'rxjs/add/operator/toPromise';
 import { ConstantValues } from "./models/constantValues";
 import { UpdateHistory } from "./entities/updateHistory";
-var app = <Electron.App>electron.remote.app;
+
 // https://angular.io/docs/ts/latest/api/
 @Component({
     selector: 'app-root',
